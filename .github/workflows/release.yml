@@ -89,10 +89,12 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - uses: android-actions/setup-android@v3
 
       - name: Install Android SDK components
-        run: sdkmanager --install "ndk;28.2.13676358" "platforms;android-35"
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          [ -x "$SDKMANAGER" ] || SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -1)
+          yes | "$SDKMANAGER" --install "ndk;28.2.13676358" "platforms;android-35"
 
       - uses: dtolnay/rust-toolchain@stable
         with:
