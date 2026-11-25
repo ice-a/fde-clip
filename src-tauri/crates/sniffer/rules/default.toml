@@ -1,0 +1,149 @@
+# Default diagnosis rules. Order matters: the first non-critical match sets the kind.
+# Reload at runtime with settings_reload_rules().
+
+[[rule]]
+id = "openai_key"
+kind = "secret"
+pattern = 'sk-[A-Za-z0-9_-]{20,}'
+severity = "critical"
+message = "疑似 OpenAI API Key 泄露"
+fix_hint = "立刻吊销该 Key，打码后再分享"
+
+[[rule]]
+id = "aws_access_key"
+kind = "secret"
+pattern = 'AKIA[0-9A-Z]{16}'
+severity = "critical"
+message = "疑似 AWS Access Key ID 泄露"
+fix_hint = "在 IAM 中禁用该密钥并轮换"
+
+[[rule]]
+id = "github_token"
+kind = "secret"
+pattern = 'gh[pousr]_[A-Za-z0-9_]{36,}'
+severity = "critical"
+message = "疑似 GitHub Token 泄露"
+fix_hint = "在 GitHub Settings 中撤销该 Token"
+
+[[rule]]
+id = "private_key"
+kind = "private_key"
+pattern = '-----BEGIN (RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----'
+severity = "critical"
+message = "检测到私钥 PEM 头"
+fix_hint = "不要传播私钥；立即轮换密钥对"
+
+[[rule]]
+id = "slack_token"
+kind = "secret"
+pattern = 'xox[baprs]-[A-Za-z0-9-]{10,}'
+severity = "critical"
+message = "疑似 Slack Token 泄露"
+fix_hint = "撤销并重新签发 Token"
+
+[[rule]]
+id = "dangerous_shell"
+kind = "shell"
+pattern = '(rm\s+-rf\s+/|curl[^\n|]*\|\s*(ba)?sh|wget[^\n|]*\|\s*(ba)?sh|\bsudo\s+)'
+severity = "critical"
+message = "shell 命令包含危险模式（删根/管道执行/提权）"
+fix_hint = "执行前逐字核对目标路径与来源"
+
+[[rule]]
+id = "jwt_token"
+kind = "jwt"
+pattern = 'eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}'
+severity = "info"
+message = "检测到 JWT，可用「解密 JWT」配方查看载荷"
+
+[[rule]]
+id = "base64_blob"
+kind = "base64"
+pattern = '(?m)^[A-Za-z0-9+/]{32,}={0,2}$'
+severity = "info"
+message = "疑似 Base64 数据，可用内置配方解码"
+
+[[rule]]
+id = "hex_blob"
+kind = "hex"
+pattern = '(?i)\b[0-9a-f]{32,}\b'
+severity = "info"
+message = "疑似 Hex 数据"
+
+[[rule]]
+id = "md5_hash"
+kind = "hash"
+pattern = '(?i)\b[0-9a-f]{32}\b'
+severity = "info"
+message = "疑似 MD5 哈希"
+
+[[rule]]
+id = "sha256_hash"
+kind = "hash"
+pattern = '(?i)\b[0-9a-f]{64}\b'
+severity = "info"
+message = "疑似 SHA-256 哈希"
+
+[[rule]]
+id = "email"
+kind = "email"
+pattern = '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
+severity = "info"
+message = "检测到邮箱地址"
+
+[[rule]]
+id = "uuid"
+kind = "uuid"
+pattern = '(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b'
+severity = "info"
+message = "检测到 UUID"
+
+[[rule]]
+id = "json_like"
+kind = "json"
+pattern = '\A\s*[\[{]'
+severity = "info"
+message = "疑似 JSON/数组文本"
+
+[[rule]]
+id = "sql_risk"
+kind = "sql"
+pattern = '(?i)(union\s+select|drop\s+table|or\s+1\s*=\s*1|;\s*--)' 
+severity = "warning"
+message = "SQL 片段包含高风险模式"
+fix_hint = "确认是否为注入 payload"
+
+[[rule]]
+id = "todo_fixme"
+kind = "code"
+pattern = '(?i)\b(TODO|FIXME|XXX)\b'
+severity = "info"
+message = "代码中含 TODO/FIXME 标记"
+
+[[rule]]
+id = "ipv4_address"
+kind = "ip"
+pattern = '\b(?:\d{1,3}\.){3}\d{1,3}\b'
+severity = "info"
+message = "检测到 IPv4 地址"
+
+[[rule]]
+id = "phone_cn"
+kind = "phone"
+pattern = '\b1[3-9]\d{9}\b'
+severity = "info"
+message = "检测到中国大陆手机号"
+
+[[rule]]
+id = "pem_certificate"
+kind = "certificate"
+pattern = '-----BEGIN CERTIFICATE-----'
+severity = "info"
+message = "检测到 PEM 证书，可用 X.509 配方解析"
+
+[[rule]]
+id = "dockerfile_from"
+kind = "dockerfile"
+pattern = '(?m)^FROM\s+[A-Za-z0-9._/-]+(?::[A-Za-z0-9._-]+)?\s*$'
+severity = "info"
+message = "检测到 Dockerfile 基础镜像声明"

@@ -1,0 +1,10 @@
+{
+  "name": "Base64 解码",
+  "description": "CyberChef 兼容配方：From_Base64('A-Za-z0-9+/=', true)",
+  "ops": [
+    {
+      "op": "From_Base64",
+      "args": ["A-Za-z0-9+/=", true]
+    }
+  ]
+}

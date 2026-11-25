@@ -1,0 +1,32 @@
+[package]
+name = "fde-clip"
+version = "0.1.0"
+description = "Smart clipboard workbench"
+authors = ["fde-clip contributors"]
+edition = "2021"
+rust-version = "1.90"
+
+[workspace]
+members = ["crates/*"]
+resolver = "2"
+
+[dependencies]
+tauri = { version = "2.12.7", features = ["tray-icon"] }
+regex = "1"
+tauri-plugin-clipboard-manager = "2.5.0"
+tauri-plugin-global-shortcut = "2.4.1"
+tauri-plugin-autostart = "2.7.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+keyring = "3.6.3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }
+anyhow = "1"
+
+clipboard_watcher = { path = "crates/clipboard_watcher" }
+sniffer = { path = "crates/sniffer" }
+vault = { path = "crates/vault" }
+ai_client = { path = "crates/ai_client" }
+chef_bridge = { path = "crates/chef_bridge" }
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }

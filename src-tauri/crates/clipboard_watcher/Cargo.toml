@@ -1,0 +1,9 @@
+[package]
+name = "clipboard_watcher"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tauri = { version = "2.12.7" }
+tauri-plugin-clipboard-manager = "2.5.0"
+serde = { version = "1", features = ["derive"] }
