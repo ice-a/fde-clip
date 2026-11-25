@@ -1,4 +1,10 @@
 name: release
+permissions:
+  contents: write
+
+env:
+  NODE_OPTIONS: --max-old-space-size=6144
+
 
 on:
   push:
