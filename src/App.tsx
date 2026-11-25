@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import Toasts from "./components/Toast";
 import { invoke, listen } from "./lib/tauri";
 import type { Clip } from "./lib/types";
-import AiDrawer from "./pages/AiDrawer";
 import Dashboard from "./pages/Dashboard";
 import RecipeEditor from "./pages/RecipeEditor";
 import SettingsPage from "./pages/Settings";
@@ -19,10 +18,8 @@ const nav: Array<{ id: Tab; label: string; icon: string }> = [
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("dashboard");
-  const [aiOpen, setAiOpen] = useState(false);
   const [recipeInput, setRecipeInput] = useState("");
   const addItem = useClipboard((s) => s.addItem);
-  const selected = useClipboard((s) => s.selected);
   const pushToast = useClipboard((s) => s.pushToast);
   const loadSettings = useSettings((s) => s.load);
 
@@ -59,11 +56,6 @@ export default function App() {
               .catch(() => undefined);
           }),
         );
-        dispose.push(
-          await listen("hotkey://analyze", () => {
-            setAiOpen(true);
-          }),
-        );
       } catch {
         // Browser preview without Tauri runtime: commands are unavailable.
       }
@@ -95,37 +87,14 @@ export default function App() {
             {item.label}
           </button>
         ))}
-        <button
-          onClick={() => setAiOpen(!aiOpen)}
-          title="AI 助手"
-          className={`mt-auto flex w-12 flex-col items-center gap-1 rounded-lg py-2 text-[10px] ${
-            aiOpen
-              ? "bg-sky-600/20 text-sky-300"
-              : "text-slate-500 hover:bg-slate-800/60 hover:text-slate-300"
-          }`}
-        >
-          <span className="text-base">✦</span>
-          AI
-        </button>
       </nav>
 
       <main className="min-w-0 flex-1">
-        {tab === "dashboard" && (
-          <Dashboard
-            onSendAi={() => setAiOpen(true)}
-            onUseRecipe={useAsRecipeInput}
-          />
-        )}
+        {tab === "dashboard" && <Dashboard onUseRecipe={useAsRecipeInput} />}
         {tab === "recipes" && <RecipeEditor initialInput={recipeInput} />}
         {tab === "settings" && <SettingsPage />}
       </main>
 
-      {aiOpen && (
-        <AiDrawer
-          selection={selected?.content ?? ""}
-          onClose={() => setAiOpen(false)}
-        />
-      )}
       <Toasts />
     </div>
   );

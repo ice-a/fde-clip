@@ -22,21 +22,6 @@ pub fn settings_update(settings: Settings, state: State<'_, AppState>) -> Result
 }
 
 #[tauri::command]
-pub fn settings_set_key(provider_id: String, key: String) -> Result<(), String> {
-    keyring::Entry::new("fde-clip", &provider_id)
-        .and_then(|entry| entry.set_password(&key))
-        .map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-pub fn settings_has_key(provider_id: String) -> bool {
-    keyring::Entry::new("fde-clip", &provider_id)
-        .and_then(|entry| entry.get_password())
-        .map(|key| !key.is_empty())
-        .unwrap_or(false)
-}
-
-#[tauri::command]
 pub fn settings_reload_rules(path: Option<String>, state: State<'_, AppState>) -> Result<usize, String> {
     let sniffer = match path {
         Some(custom) => sniffer::Sniffer::reload(Path::new(&custom)).map_err(|e| e.to_string())?,

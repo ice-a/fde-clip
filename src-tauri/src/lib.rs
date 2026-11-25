@@ -33,7 +33,7 @@ pub fn run() {
             });
 
             tray::create(app.handle())?;
-            hotkey::register(app.handle())?;
+            hotkey::register(app.handle());
             clipboard_watcher::start(app.handle().clone(), Duration::from_millis(interval_ms));
             if let Some(window) = app.get_webview_window("main") {
                 let handle = app.handle().clone();
@@ -67,11 +67,8 @@ pub fn run() {
             commands::chef::chef_run,
             commands::chef::chef_builtin_recipes,
             commands::chef::chef_stream_file,
-            commands::ai::ai_stream,
             commands::settings::settings_get,
             commands::settings::settings_update,
-            commands::settings::settings_set_key,
-            commands::settings::settings_has_key,
             commands::settings::settings_reload_rules,
             commands::settings::settings_data_dir,
             commands::settings::settings_get_autostart,

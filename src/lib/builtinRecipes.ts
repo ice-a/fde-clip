@@ -1,118 +1,80 @@
 import type { Recipe } from "./types";
 
-/** Recipes use CyberChef's native `OperationConfig` names and argument shapes. */
+/** Small, practical toolset. CyberChef ops run as-is; custom ops run in the worker. */
 export const BUILTIN_RECIPES: Recipe[] = [
   {
-    name: "Base64 解码",
-    description: "From Base64：还原 UTF-8 文本",
-    ops: [{ op: "From Base64", args: ["A-Za-z0-9+/=", true] }],
+    name: "JSON 转 YAML",
+    description: "把 JSON 文本转换为 YAML",
+    ops: [{ op: "JSON to YAML", args: [] }],
   },
   {
-    name: "Base64 套娃剥层",
-    description: "连续三层 From Base64，自动剥离嵌套编码",
-    ops: [
-      { op: "From Base64", args: ["A-Za-z0-9+/=", true] },
-      { op: "From Base64", args: ["A-Za-z0-9+/=", true] },
-      { op: "From Base64", args: ["A-Za-z0-9+/=", true] },
-    ],
-  },
-  {
-    name: "Hex 解码",
-    description: "From Hex：把十六进制串还原为文本",
-    ops: [{ op: "From Hex", args: ["Auto"] }],
-  },
-  {
-    name: "URL 解码",
-    description: "URL Decode：还原百分号编码与加号",
-    ops: [{ op: "URL Decode", args: [false, false] }],
-  },
-  {
-    name: "Magic 自动识别",
-    description: "Magic：深度 5 自动尝试编解码",
-    ops: [{ op: "Magic", args: [5] }],
-  },
-  {
-    name: "解密 JWT",
-    description: "JWT Decode：查看 Header 与 Payload",
-    ops: [{ op: "JWT Decode", args: [] }],
-  },
-  {
-    name: "AES 解密前端密文",
-    description: "AES Decrypt：CBC / Hex 输入 / Raw 输出，按需改密钥与 IV",
-    ops: [
-      {
-        op: "AES Decrypt",
-        args: ["password", "00000000000000000000000000000000", 16, "CBC", "Hex", "Raw", "", "", "Off"],
-      },
-    ],
-  },
-  {
-    name: "解析 X.509 证书",
-    description: "Parse X.509 certificate：读取 PEM 证书字段",
-    ops: [{ op: "Parse X.509 certificate", args: [] }],
-  },
-  {
-    name: "解压 Gzip",
-    description: "Gunzip：解压 gzip 字节流",
-    ops: [{ op: "Gunzip", args: [] }],
-  },
-  {
-    name: "Zlib 解压",
-    description: "Zlib Inflate：解压 zlib 数据流",
-    ops: [{ op: "Zlib Inflate", args: [] }],
-  },
-  {
-    name: "还原 Webpack 混淆字符串",
-    description: "Strings：提取混淆代码中长度 ≥ 4 的可打印串",
-    ops: [{ op: "Strings", args: ["Latin1", 4, "All", false, false, false] }],
-  },
-  {
-    name: "计算 MD5",
-    description: "MD5：输出 32 位十六进制摘要",
-    ops: [{ op: "MD5", args: [] }],
-  },
-  {
-    name: "计算 SHA-256",
-    description: "SHA2：256 位摘要",
-    ops: [{ op: "SHA2", args: ["256", 64] }],
-  },
-  {
-    name: "计算 SHA3",
-    description: "SHA3：512 位摘要",
-    ops: [{ op: "SHA3", args: ["512"] }],
-  },
-  {
-    name: "HMAC 签名",
-    description: "HMAC：以 secret 为密钥、SHA256 为摘要算法",
-    ops: [{ op: "HMAC", args: ["secret", "SHA256"] }],
+    name: "YAML 转 JSON",
+    description: "把 YAML 文本转换为 JSON",
+    ops: [{ op: "YAML to JSON", args: [] }],
   },
   {
     name: "时间戳转日期",
-    description: "From UNIX Timestamp：秒级时间戳转 UTC",
+    description: "秒级 Unix 时间戳转 UTC 日期",
     ops: [{ op: "From UNIX Timestamp", args: ["Seconds (s)"] }],
   },
   {
     name: "日期转时间戳",
-    description: "To UNIX Timestamp：文本日期转秒级时间戳",
+    description: "文本日期转秒级 Unix 时间戳",
     ops: [{ op: "To UNIX Timestamp", args: ["Seconds (s)", true, true] }],
   },
   {
-    name: "提取 URL",
-    description: "Extract URLs：提取并去重链接",
-    ops: [{ op: "Extract URLs", args: [false, true, true] }],
+    name: "Cron 解析",
+    description: "解析 5 段 cron 表达式并给出可读说明",
+    ops: [{ op: "Cron Parse", args: [] }],
   },
   {
-    name: "Fork 多行处理",
-    description: "Fork + From Base64 + Merge：逐行解码后合并",
-    ops: [
-      { op: "Fork", args: ["\\n", "\\n", false] },
-      { op: "From Base64", args: ["A-Za-z0-9+/=", true] },
-      { op: "Merge", args: [true] },
-    ],
+    name: "Base64 文本编码",
+    description: "把文本编码为 Base64",
+    ops: [{ op: "To Base64", args: ["A-Za-z0-9+/="] }],
   },
   {
-    name: "JSON 美化",
-    description: "JSON Beautify：四空格缩进",
+    name: "Base64 文本解码",
+    description: "把 Base64 还原为文本",
+    ops: [{ op: "From Base64", args: ["A-Za-z0-9+/=", true] }],
+  },
+  {
+    name: "图片转 Base64",
+    description: "把图片文件或 data URL 转为 Base64 data URL",
+    ops: [{ op: "Image To Base64", args: [] }],
+  },
+  {
+    name: "Base64 转图片",
+    description: "把图片 Base64 转为可预览的 data URL",
+    ops: [{ op: "Base64 To Image", args: [] }],
+  },
+  {
+    name: "JSON 格式化",
+    description: "四空格缩进美化 JSON",
     ops: [{ op: "JSON Beautify", args: ["    ", false, true] }],
+  },
+  {
+    name: "SQL 格式化",
+    description: "SQL Beautify：格式化 SQL 语句",
+    ops: [{ op: "SQL Beautify", args: ["\t"] }],
+  },
+  {
+    name: "生成 Hash",
+    description: "计算 SHA-256 摘要",
+    ops: [{ op: "SHA2", args: ["256", 64] }],
+  },
+  {
+    name: "密码生成器",
+    description: "用系统 CSPRNG 生成随机密码，参数为长度",
+    ops: [{ op: "Password Generate", args: [16] }],
+  },
+  {
+    name: "生成 UUID",
+    description: "生成版本 4 随机 UUID",
+    ops: [{ op: "Generate UUID", args: ["v4"] }],
+  },
+  {
+    name: "图片压缩",
+    description: "把图片转换为 WebP，参数为质量 0-1",
+    ops: [{ op: "Image Compress", args: [0.7] }],
   },
 ];

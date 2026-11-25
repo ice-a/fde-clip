@@ -10,7 +10,6 @@ const severityStyle: Record<Severity, string> = {
 interface Props {
   clip: Clip;
   onCopy: (masked: boolean) => void;
-  onSendAi: () => void;
   onUseRecipe: () => void;
   onPin: () => void;
   onDelete: () => void;
@@ -19,7 +18,6 @@ interface Props {
 export default function DiagnosticCard({
   clip,
   onCopy,
-  onSendAi,
   onUseRecipe,
   onPin,
   onDelete,
@@ -83,7 +81,6 @@ export default function DiagnosticCard({
         <Action onClick={() => onCopy(false)}>复制原文</Action>
         <Action onClick={() => onCopy(true)}>一键打码</Action>
         <Action onClick={onUseRecipe}>用配方解码</Action>
-        <Action onClick={onSendAi}>发送给 AI</Action>
         <Action onClick={onPin}>{clip.pinned ? "取消置顶" : "置顶"}</Action>
         <Action onClick={onDelete} danger>
           删除

@@ -22,19 +22,7 @@ export interface Clip {
   diagnosis: Diagnosis;
 }
 
-export interface ProviderConfig {
-  id: string;
-  name: string;
-  base_url: string;
-  model: string;
-  temperature: number;
-  max_tokens: number;
-  stream: boolean;
-}
-
 export interface Settings {
-  providers: ProviderConfig[];
-  active_provider_id: string;
   retention_days: number;
   retention_max: number;
   poll_interval_ms: number;

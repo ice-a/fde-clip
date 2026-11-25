@@ -5,11 +5,10 @@ import type { Clip } from "../lib/types";
 import { useClipboard } from "../store/clipboard";
 
 interface Props {
-  onSendAi: () => void;
   onUseRecipe: (input: string) => void;
 }
 
-export default function Dashboard({ onSendAi, onUseRecipe }: Props) {
+export default function Dashboard({ onUseRecipe }: Props) {
   const items = useClipboard((s) => s.items);
   const selected = useClipboard((s) => s.selected);
   const query = useClipboard((s) => s.query);
@@ -143,7 +142,6 @@ export default function Dashboard({ onSendAi, onUseRecipe }: Props) {
           <DiagnosticCard
             clip={selected}
             onCopy={copy}
-            onSendAi={onSendAi}
             onUseRecipe={() => onUseRecipe(selected.content)}
             onPin={togglePin}
             onDelete={remove}

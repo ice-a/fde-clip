@@ -18,14 +18,12 @@ tauri-plugin-global-shortcut = "2.4.1"
 tauri-plugin-autostart = "2.7.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-keyring = "3.6.3"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }
 anyhow = "1"
 
 clipboard_watcher = { path = "crates/clipboard_watcher" }
 sniffer = { path = "crates/sniffer" }
 vault = { path = "crates/vault" }
-ai_client = { path = "crates/ai_client" }
 chef_bridge = { path = "crates/chef_bridge" }
 
 [build-dependencies]

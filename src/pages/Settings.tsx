@@ -10,8 +10,6 @@ export default function SettingsPage() {
   const saveToStore = useSettings((s) => s.save);
   const pushToast = useClipboard((s) => s.pushToast);
   const [form, setForm] = useState<Settings | null>(null);
-  const [apiKey, setApiKey] = useState("");
-  const [hasKey, setHasKey] = useState(false);
   const [dataDir, setDataDir] = useState("");
   const [autostart, setAutostart] = useState(false);
 
@@ -23,11 +21,6 @@ export default function SettingsPage() {
     setForm(settings);
     if (settings) {
       void invoke<string>("settings_data_dir").then(setDataDir).catch(() => undefined);
-      void invoke<boolean>("settings_has_key", {
-        provider_id: settings.active_provider_id,
-      })
-        .then(setHasKey)
-        .catch(() => undefined);
       void invoke<boolean>("settings_get_autostart").then(setAutostart).catch(() => undefined);
     }
   }, [settings]);
@@ -36,24 +29,11 @@ export default function SettingsPage() {
     return <div className="p-6 text-sm text-slate-500">正在加载设置…</div>;
   }
 
-  const provider = form.providers.find((p) => p.id === form.active_provider_id) ?? form.providers[0];
-
-  const updateProvider = (patch: Partial<typeof provider>) => {
-    if (!provider) return;
-    setForm({
-      ...form,
-      providers: form.providers.map((p) => (p.id === provider.id ? { ...p, ...patch } : p)),
-    });
-  };
 
   const save = async () => {
     try {
       await saveToStore(form);
-      if (provider && apiKey) {
-        await invoke("settings_set_key", { provider_id: provider.id, key: apiKey });
-        setApiKey("");
-      }
-      pushToast({ title: "已保存", body: "设置已写入本地，Key 存于系统钥匙串", severity: "info" });
+      pushToast({ title: "已保存", body: "设置已写入本地", severity: "info" });
     } catch (err) {
       pushToast({ title: "保存失败", body: String(err), severity: "warning" });
     }
@@ -85,67 +65,6 @@ export default function SettingsPage() {
   return (
     <div className="h-full overflow-y-auto p-6">
       <div className="mx-auto max-w-3xl space-y-5">
-        <section className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-          <h2 className="text-sm font-semibold text-slate-100">AI Provider</h2>
-          <p className="mt-1 text-xs text-slate-500">
-            兼容 OpenAI /v1/chat/completions。Key 只存系统钥匙串，不明文落盘。
-          </p>
-          {provider && (
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <Field label="名称">
-                <input
-                  value={provider.name}
-                  onChange={(e) => updateProvider({ name: e.target.value })}
-                  className={inputClass}
-                />
-              </Field>
-              <Field label="Model">
-                <input
-                  value={provider.model}
-                  onChange={(e) => updateProvider({ model: e.target.value })}
-                  className={inputClass}
-                />
-              </Field>
-              <Field label="Base URL" span>
-                <input
-                  value={provider.base_url}
-                  onChange={(e) => updateProvider({ base_url: e.target.value })}
-                  className={inputClass}
-                  placeholder="https://api.openai.com/v1"
-                />
-              </Field>
-              <Field label={hasKey ? "API Key（已保存，留空不修改）" : "API Key"} span>
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className={inputClass}
-                  placeholder={hasKey ? "••••••••" : "sk-..."}
-                />
-              </Field>
-              <Field label="Temperature">
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="2"
-                  value={provider.temperature}
-                  onChange={(e) => updateProvider({ temperature: Number(e.target.value) })}
-                  className={inputClass}
-                />
-              </Field>
-              <Field label="Max tokens">
-                <input
-                  type="number"
-                  value={provider.max_tokens}
-                  onChange={(e) => updateProvider({ max_tokens: Number(e.target.value) })}
-                  className={inputClass}
-                />
-              </Field>
-            </div>
-          )}
-        </section>
-
         <section className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
           <h2 className="text-sm font-semibold text-slate-100">隐私与保留策略</h2>
           <div className="mt-4 grid grid-cols-2 gap-3">
@@ -230,7 +149,7 @@ export default function SettingsPage() {
             {dataDir || "读取中…"}
           </p>
           <p className="mt-2 text-xs text-slate-500">
-            剪贴板内容只存本地 SQLite，不联网；只有点击「发送给 AI」才发送选中片段。
+            剪贴板内容只存本地 SQLite，应用不联网、不上传任何内容。
           </p>
           <div className="mt-4 flex gap-2">
             <button

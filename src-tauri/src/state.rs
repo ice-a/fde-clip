@@ -4,34 +4,12 @@ use std::sync::Mutex;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProviderConfig {
-    pub id: String,
-    pub name: String,
-    pub base_url: String,
-    pub model: String,
-    #[serde(default = "default_temperature")]
-    pub temperature: f32,
-    #[serde(default = "default_max_tokens")]
-    pub max_tokens: u32,
-    #[serde(default = "default_true")]
-    pub stream: bool,
-}
-
-fn default_temperature() -> f32 {
-    0.3
-}
-fn default_max_tokens() -> u32 {
-    2048
-}
 fn default_true() -> bool {
     true
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
-    pub providers: Vec<ProviderConfig>,
-    pub active_provider_id: String,
     #[serde(default = "default_retention_days")]
     pub retention_days: i64,
     #[serde(default = "default_retention_max")]
@@ -59,16 +37,6 @@ fn default_poll_interval() -> u64 {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            providers: vec![ProviderConfig {
-                id: "openai".into(),
-                name: "OpenAI 兼容".into(),
-                base_url: "https://api.openai.com/v1".into(),
-                model: "gpt-4o-mini".into(),
-                temperature: default_temperature(),
-                max_tokens: default_max_tokens(),
-                stream: true,
-            }],
-            active_provider_id: "openai".into(),
             retention_days: default_retention_days(),
             retention_max: default_retention_max(),
             poll_interval_ms: default_poll_interval(),
