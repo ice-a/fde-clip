@@ -110,12 +110,27 @@ jobs:
           chmod +x src-tauri/gen/android/gradlew
           pnpm tauri android build --ci --apk --aab -t aarch64
 
+
+      - name: Sign Android artifacts
+        run: |
+          keytool -genkeypair -keystore "$RUNNER_TEMP/fde-clip.jks" -alias fde-clip \
+            -storepass androidrelease -keypass androidrelease -keyalg RSA -keysize 2048 \
+            -validity 10000 -dname "CN=fde-clip" -noprompt
+          APK=$(find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' | head -1)
+          AAB=$(find src-tauri/gen/android/app/build/outputs/bundle -name '*.aab' | head -1)
+          APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)/apksigner
+          "$APKSIGNER" sign --ks "$RUNNER_TEMP/fde-clip.jks" \
+            --ks-pass pass:androidrelease --key-pass pass:androidrelease \
+            --out "$RUNNER_TEMP/fde-clip-arm64.apk" "$APK"
+          "$APKSIGNER" verify "$RUNNER_TEMP/fde-clip-arm64.apk"
+          jarsigner -keystore "$RUNNER_TEMP/fde-clip.jks" -storepass androidrelease \
+            -keypass androidrelease "$AAB" fde-clip
       - name: Upload Android artifacts
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            src-tauri/gen/android/app/build/outputs/apk/**/*.apk
+            ${{ runner.temp }}/fde-clip-arm64.apk
             src-tauri/gen/android/app/build/outputs/bundle/**/*.aab
 
 # macOS 签名需在仓库 Secrets 配置 APPLE_CERTIFICATE / APPLE_CERTIFICATE_PASSWORD /
