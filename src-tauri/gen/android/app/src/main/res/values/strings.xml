@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">"fde-clip"</string>
+    <string name="main_activity_title">"fde-clip"</string>
+    <string name="accessibility_description">"fde-clip 剪贴板监听（后台诊断）"</string>
+</resources>

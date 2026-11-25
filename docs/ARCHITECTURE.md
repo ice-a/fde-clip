@@ -66,3 +66,10 @@ flowchart LR
 适配点：`vite.config.ts` 中的 UMD 补丁（chi-squared `with`、zlibjs 模块作用域、GOST 导入重赋值、node-md6 隐式全局、codepage ESM 导出、lzma 动态 require）、Node polyfill、`__dirname`/`__filename` define、`optimizeDeps.exclude`；Worker 提供 CyberChef 协议钩子（`sendStatusMessage`/`sendProgressMessage`/`setOption`/`loadRequiredModules`）。
 
 已知限制：dev 模式通过 `predev` 脚本复用已验证的生产 CyberChef worker bundle（`dev-cyberchef/`，由 Vite 中间件提供），避开了 esbuild 对 500+ 模块的逐包预构建；首次启动会自动执行一次 `pnpm build`。LZMA 相关 op 使用简化初始化，功能未完整验证。
+
+## Android
+
+- 通过 `src-tauri/gen/android` 中的原生工程构建；该目录的源码需要纳入版本管理，构建产物目录已忽略。
+- 托盘、全局快捷键与开机自启在 `cfg(not(mobile))` 下条件编译，不进入 Android 包。
+- Android 10+ 只允许前台应用或默认输入法读取剪贴板。可选的 `ClipboardAccessibilityService` 由用户在系统无障碍设置中主动开启；开启后把最新文本（Base64）写入应用数据目录，Rust watcher 轮询该文件并 emit `clipboard://changed`。服务每 30 秒写心跳，设置页据此显示授权状态并可跳转系统设置。
+- 未授权时 Android 版不会后台读取剪贴板，只在应用前台手动使用配方工具。

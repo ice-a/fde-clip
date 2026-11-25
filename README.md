@@ -32,7 +32,13 @@ pnpm tauri build
 ```
 
 产物位于 `src-tauri/target/release/bundle/`。Windows 生成 NSIS/msi，macOS 生成 dmg，Linux 生成 AppImage/deb。macOS 签名需配置 `APPLE_CERTIFICATE` 等 secrets（见 `.github/workflows/release.yml`）。
-> 已验证产物：Windows NSIS `fde-clip_0.1.0_x64-setup.exe`（8.66 MiB）、MSI `fde-clip_0.1.0_x64_en-US.msi`（10.47 MiB），均低于 25 MB。macOS dmg 与 Linux AppImage/deb 由 `.github/workflows/release.yml` 的 matrix 在各自 runner 上出包，本机无法交叉构建。
+> 已验证产物：Windows NSIS `fde-clip_0.1.0_x64-setup.exe`（7.76 MiB）、MSI `fde-clip_0.1.0_x64_en-US.msi`（9.28 MiB）。macOS dmg 与 Linux AppImage/deb/rpm 由 `.github/workflows/release.yml` 的 matrix 在各自 runner 上出包。
+
+## Android
+
+构建：`pnpm tauri android build --ci --apk --aab -t aarch64`（需 Android SDK/NDK 与 `aarch64-linux-android` Rust target）。
+
+Android 10+ 禁止后台应用读取剪贴板。应用内的「后台剪贴板监听」需要用户主动到系统设置 → 无障碍 → 已下载的服务中开启「fde-clip 剪贴板监听」；设置页提供跳转入口与授权状态显示。未授权时应用只在前台手动使用，不会读取剪贴板。
 
 ## 本地验证（MVP）
 

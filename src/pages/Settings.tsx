@@ -4,6 +4,10 @@ import type { Settings } from "../lib/types";
 import { useClipboard } from "../store/clipboard";
 import { useSettings } from "../store/settings";
 
+const isAndroid = /Android/i.test(
+  typeof navigator === "undefined" ? "" : navigator.userAgent,
+);
+
 export default function SettingsPage() {
   const settings = useSettings((s) => s.settings);
   const load = useSettings((s) => s.load);
@@ -12,6 +16,7 @@ export default function SettingsPage() {
   const [form, setForm] = useState<Settings | null>(null);
   const [dataDir, setDataDir] = useState("");
   const [autostart, setAutostart] = useState(false);
+  const [backgroundPermission, setBackgroundPermission] = useState(false);
 
   useEffect(() => {
     void load();
@@ -24,6 +29,12 @@ export default function SettingsPage() {
       void invoke<boolean>("settings_get_autostart").then(setAutostart).catch(() => undefined);
     }
   }, [settings]);
+
+  useEffect(() => {
+    void invoke<boolean>("settings_background_permission")
+      .then(setBackgroundPermission)
+      .catch(() => undefined);
+  }, []);
 
   if (!form) {
     return <div className="p-6 text-sm text-slate-500">正在加载设置…</div>;
@@ -50,6 +61,26 @@ export default function SettingsPage() {
       });
     } catch (err) {
       pushToast({ title: "设置失败", body: String(err), severity: "warning" });
+    }
+  };
+
+  const refreshBackgroundPermission = async () => {
+    try {
+      setBackgroundPermission(await invoke<boolean>("settings_background_permission"));
+    } catch (err) {
+      pushToast({ title: "状态读取失败", body: String(err), severity: "warning" });
+    }
+  };
+
+  const openAccessibilitySettings = async () => {
+    try {
+      await invoke("settings_open_accessibility_settings");
+    } catch (err) {
+      pushToast({
+        title: "无法打开设置",
+        body: `请手动进入 系统设置 → 无障碍 → 已下载的服务，开启 fde-clip 剪贴板监听。${String(err)}`,
+        severity: "warning",
+      });
     }
   };
 
@@ -143,6 +174,35 @@ export default function SettingsPage() {
           </div>
         </section>
 
+
+        {isAndroid && (
+          <section className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+            <h2 className="text-sm font-semibold text-slate-100">后台剪贴板监听（Android）</h2>
+            <p className="mt-1 text-xs text-slate-500">
+              Android 10+ 禁止后台应用读取剪贴板。开启无障碍服务后，应用才能在后台继续嗅探；不开启时仅在应用内手动使用。
+            </p>
+            <p className="mt-2 text-xs">
+              授权状态：
+              <span className={backgroundPermission ? "text-emerald-400" : "text-amber-400"}>
+                {backgroundPermission ? " 已允许" : " 未允许"}
+              </span>
+            </p>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => void openAccessibilitySettings()}
+                className="rounded-lg bg-sky-600 px-3 py-2 text-xs font-medium text-white hover:bg-sky-500"
+              >
+                打开系统无障碍设置
+              </button>
+              <button
+                onClick={() => void refreshBackgroundPermission()}
+                className="rounded-lg border border-slate-700 px-3 py-2 text-xs text-slate-300"
+              >
+                刷新状态
+              </button>
+            </div>
+          </section>
+        )}
         <section className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
           <h2 className="text-sm font-semibold text-slate-100">本地数据</h2>
           <p className="mt-1 break-all font-mono text-[11px] text-slate-500">
