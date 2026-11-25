@@ -105,9 +105,9 @@ jobs:
           workspaces: src-tauri -> target
 
       - name: Build Android APK and AAB
-        env:
-          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/28.2.13676358
         run: |
+          export NDK_HOME="$ANDROID_HOME/ndk/28.2.13676358"
+          export ANDROID_NDK_HOME="$NDK_HOME"
           pnpm install
           chmod +x src-tauri/gen/android/gradlew
           pnpm tauri android build --ci --apk --aab -t aarch64
