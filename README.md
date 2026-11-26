@@ -44,9 +44,9 @@
 
 从 [Releases](https://github.com/ice-a/fde-clip/releases/latest) 获取对应平台产物：
 
-- Windows：`fde-clip_0.1.1_x64-setup.exe` / `fde-clip_0.1.1_x64_en-US.msi`
-- macOS：`fde-clip_0.1.1_x64.dmg` / `fde-clip_0.1.1_aarch64.dmg`（未签名）
-- Linux：`fde-clip_0.1.1_amd64.AppImage` / `.deb` / `.rpm`
+- Windows：`fde-clip_0.2.0_x64-setup.exe` / `fde-clip_0.2.0_x64_en-US.msi`
+- macOS：`fde-clip_0.2.0_x64.dmg` / `fde-clip_0.2.0_aarch64.dmg`（未签名）
+- Linux：`fde-clip_0.2.0_amd64.AppImage` / `.deb` / `.rpm`
 - Android：`fde-clip-arm64.apk` / AAB
 
 自行构建：
