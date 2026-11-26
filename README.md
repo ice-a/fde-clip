@@ -2,7 +2,7 @@
 
 **离线剪贴板工具箱**——复制即诊断，常用编解码与格式化一键完成。纯本地运行，无账号、无网络请求、无 AI。
 
-[下载最新版本](https://github.com/ice-a/fde-clip/releases/latest) · [架构说明](docs/ARCHITECTURE.md) · [贡献指南](CONTRIBUTING.md)
+[项目主页](https://ice-a.github.io/fde-clip/) · [下载最新版本](https://github.com/ice-a/fde-clip/releases/latest) · [架构说明](docs/ARCHITECTURE.md) · [贡献指南](CONTRIBUTING.md)
 
 ## 主要功能
 
@@ -33,6 +33,8 @@
 - `Ctrl` + `Shift` + `V` 全局快捷键唤出面板
 - 可选开机自启（设置页开关，写入系统启动项）
 - Windows / macOS / Linux 单仓库构建，CI 自动出包
+
+![设置页：保留策略、后台运行与开机自启](docs/images/settings.png)
 
 ### 4. Android
 - arm64 APK / AAB，由 CI 构建并签名
