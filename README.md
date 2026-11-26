@@ -2,7 +2,7 @@
 
 **离线剪贴板工具箱**——复制即诊断，常用编解码与格式化一键完成。纯本地运行，无账号、无网络请求、无 AI。
 
-[项目主页](https://ice-a.github.io/fde-clip/) · [下载最新版本](https://github.com/ice-a/fde-clip/releases/latest) · [架构说明](docs/ARCHITECTURE.md) · [贡献指南](CONTRIBUTING.md)
+[项目主页](https://ice-a.github.io/fde-clip/) · [下载最新版本](https://github.com/ice-a/fde-clip/releases/latest) · [架构说明](docs/ARCHITECTURE.md) · [贡献指南](CONTRIBUTING.md) · [推广文案](PROMOTION.md) · [Linux.do 友链](https://linux.do/)
 
 ## 主要功能
 
@@ -78,3 +78,8 @@ pnpm tauri android build --ci --apk --aab -t aarch64   # Android
 ## 开发
 
 架构与实现细节见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)，贡献方式见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+## 友链
+
+- [Linux.do](https://linux.do/) —— 技术分享与开源推广社区
+
