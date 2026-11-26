@@ -4,6 +4,22 @@
 
 :root {
   color-scheme: dark;
+
+  /* Colours are RGB channels so Tailwind's /alpha modifiers work everywhere. */
+  --base: 9 11 10;
+  --surface: 15 19 17;
+  --surface-2: 21 26 23;
+  --elevated: 27 34 29;
+  --line: 35 43 37;
+  --line-strong: 53 64 54;
+  --text: 233 237 231;
+  --muted: 154 166 156;
+  --dim: 102 115 106;
+  --accent: 198 242 78;
+  --accent-text: 216 255 116;
+  --info: 107 199 212;
+  --warning: 242 181 68;
+  --danger: 255 107 94;
 }
 
 html,
@@ -14,22 +30,133 @@ body,
 }
 
 body {
-  @apply bg-slate-950 text-slate-200 font-sans text-sm antialiased;
+  background-color: rgb(var(--base));
+  background-image:
+    radial-gradient(ellipse 65% 45% at 12% -12%, rgb(var(--accent) / 0.055), transparent 70%),
+    radial-gradient(ellipse 55% 40% at 105% 0%, rgb(var(--info) / 0.035), transparent 70%);
+  color: rgb(var(--text));
+  font-family: "Segoe UI Variable Text", "Segoe UI", "PingFang SC", "Microsoft YaHei UI",
+    system-ui, sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgb(var(--accent) / 0.26);
+  color: #f6ffe4;
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-thumb {
-  @apply rounded bg-slate-700/70;
+  width: 9px;
+  height: 9px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--line-strong));
+  border: 2px solid transparent;
+  border-radius: 9px;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4c5a4e;
+  background-clip: content-box;
+}
 
 textarea,
 input,
+select,
+button {
+  font: inherit;
+}
+textarea,
+input,
 select {
-  @apply outline-none;
+  outline: none;
+}
+
+/* Subtle grid overlay for the workbench feel. */
+.app-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse 80% 60% at 30% 0%, #000, transparent 80%);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-timer {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgb(var(--accent) / 0.35);
+  }
+  50% {
+    opacity: 0.75;
+    box-shadow: 0 0 0 4px rgb(var(--accent) / 0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s cubic-bezier(0.22, 0.7, 0.3, 1) both;
+}
+.animate-slide-in {
+  animation: slide-in-right 0.3s cubic-bezier(0.22, 0.7, 0.3, 1) both;
+}
+.animate-timer {
+  animation: toast-timer 5s linear forwards;
+  transform-origin: left;
+}
+.animate-pulse-dot {
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

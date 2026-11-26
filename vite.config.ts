@@ -115,6 +115,59 @@ const patchCyberChefDeps = {
         map: null,
       };
     }
+    // CyberChef targets Webpack/CJS and probes `X.default` on packages that
+    // are ESM-only. Rollup warns on each probe, and the probe is always falsy
+    // here. Collapse it to the fallback branch that actually executes.
+    if (
+      id.includes("cyberchef/src/core/") &&
+      /from "(flat|diff|d3|nodom|d3-hexbin|es6-promisify)"/.test(code) &&
+      /\.default\s*\?/.test(code)
+    ) {
+      return {
+        code: code.replace(
+          /(\w+)\.default\s*\?\s*\1\.default(\.\w+)?\s*:\s*\1\2/g,
+          "$1$2",
+        ),
+        map: null,
+      };
+    }
+    // Third-party eval calls that are either dead code in the browser or
+    // equivalent to a plain expression. Removing them clears Rollup's EVAL
+    // warning without changing behaviour in the bundle.
+    if (id.includes("crypto-gost-js/dist/CryptoGost.js")) {
+      return { code: code.replace("return eval(this.code);", "return new Function(this.code)();"), map: null };
+    }
+    if (id.includes("jimp/dist/browser/index.js")) {
+      return {
+        code: code.replace(
+          'eval("require")("stream")',
+          '(function () { throw new Error("stream input is not supported in the browser"); })()',
+        ),
+        map: null,
+      };
+    }
+    // Emscripten bundles and asn1.js reference Node builtins only in their
+    // Node-only branches (ENVIRONMENT_IS_NODE / a try-catch fallback). Vite
+    // externalizes those imports and warns. Replace the bare requires with an
+    // explicit throw so the static analyser sees no Node module reference,
+    // while an accidental browser path still fails with a clear message.
+    const nodeOnlyBundles = [
+      "libbzip2-wasm/dist/",
+      "capstone-js/dist/",
+      "libyara-wasm/dist/",
+      "jq-web/jq.asm.bundle",
+      "asn1.js/lib/asn1/api.js",
+    ];
+    if (nodeOnlyBundles.some((marker) => id.includes(marker))) {
+      return {
+        code: code.replace(
+          /\brequire\(\s*["'](fs|vm|path)["']\s*\)/g,
+          (_, module) =>
+            `(function(m){throw new Error("Node module " + m + " is unavailable in the browser")})("${module}")`,
+        ),
+        map: null,
+      };
+    }
     return null;
   },
 };
@@ -162,6 +215,20 @@ export default defineConfig({
       transformMixedEsModules: true,
       include: [/node_modules/],
       ignoreDynamicRequires: true,
+    },
+    rollupOptions: {
+      onwarn(warning, defaultHandler) {
+        // zlibjs uses eval once as a String.fromCharCode.apply feature probe.
+        // Our transform hook never sees this file (it is converted inside the
+        // commonjs plugin), so filter this single audited warning by source.
+        if (
+          warning.code === "EVAL" &&
+          warning.id?.includes("zlibjs/bin/unzip.min.js")
+        ) {
+          return;
+        }
+        defaultHandler(warning);
+      },
     },
   },
 });

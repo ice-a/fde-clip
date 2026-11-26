@@ -1,4 +1,15 @@
 import { useEffect, useState } from "react";
+import Icon from "../components/Icon";
+import {
+  Badge,
+  Button,
+  Card,
+  CardTitle,
+  Field,
+  PageHeader,
+  TextInput,
+  Toggle,
+} from "../components/ui";
 import { invoke } from "../lib/tauri";
 import type { Settings } from "../lib/types";
 import { useClipboard } from "../store/clipboard";
@@ -37,9 +48,12 @@ export default function SettingsPage() {
   }, []);
 
   if (!form) {
-    return <div className="p-6 text-sm text-slate-500">正在加载设置…</div>;
+    return (
+      <div className="flex h-full items-center justify-center text-[12px] text-dim">
+        正在加载设置…
+      </div>
+    );
   }
-
 
   const save = async () => {
     try {
@@ -94,159 +108,134 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="h-full overflow-y-auto p-6">
-      <div className="mx-auto max-w-3xl space-y-5">
-        <section className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-          <h2 className="text-sm font-semibold text-slate-100">隐私与保留策略</h2>
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <Field label="保留天数">
-              <input
-                type="number"
-                value={form.retention_days}
-                onChange={(e) => setForm({ ...form, retention_days: Number(e.target.value) })}
-                className={inputClass}
-              />
-            </Field>
-            <Field label="最大条数">
-              <input
-                type="number"
-                value={form.retention_max}
-                onChange={(e) => setForm({ ...form, retention_max: Number(e.target.value) })}
-                className={inputClass}
-              />
-            </Field>
-            <Field label="轮询间隔（ms）">
-              <input
-                type="number"
-                step="50"
-                value={form.poll_interval_ms}
-                onChange={(e) => setForm({ ...form, poll_interval_ms: Number(e.target.value) })}
-                className={inputClass}
-              />
-            </Field>
-            <div className="flex items-end gap-4 pb-2">
-              <label className="flex items-center gap-2 text-xs text-slate-300">
-                <input
-                  type="checkbox"
+    <div className="flex h-full flex-col overflow-hidden">
+      <PageHeader
+        eyebrow="Preferences / Settings"
+        title="偏好设置"
+        description="保留策略、后台行为与本地数据管理"
+        action={
+          <Button variant="primary" size="sm" icon="check" onClick={() => void save()}>
+            保存设置
+          </Button>
+        }
+      />
+
+      <div className="min-h-0 flex-1 overflow-y-auto p-5">
+        <div className="mx-auto max-w-3xl space-y-4">
+          <Card>
+            <CardTitle icon="shield" title="隐私与保留策略" hint="本地 SQLite" />
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3 p-4">
+              <Field label="保留天数" hint="超期自动清理">
+                <TextInput
+                  type="number"
+                  value={form.retention_days}
+                  onChange={(e) => setForm({ ...form, retention_days: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="最大条数" hint="超出后淘汰旧记录">
+                <TextInput
+                  type="number"
+                  value={form.retention_max}
+                  onChange={(e) => setForm({ ...form, retention_max: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="轮询间隔" hint="毫秒">
+                <TextInput
+                  type="number"
+                  step={50}
+                  value={form.poll_interval_ms}
+                  onChange={(e) => setForm({ ...form, poll_interval_ms: Number(e.target.value) })}
+                />
+              </Field>
+              <div className="flex flex-col justify-center gap-1 rounded-[10px] border border-line bg-surface-2/50 px-3 py-2">
+                <Toggle
                   checked={form.diagnostics_enabled}
-                  onChange={(e) =>
-                    setForm({ ...form, diagnostics_enabled: e.target.checked })
-                  }
+                  onChange={(next) => setForm({ ...form, diagnostics_enabled: next })}
+                  label="启用诊断"
                 />
-                启用诊断
-              </label>
-              <label className="flex items-center gap-2 text-xs text-slate-300">
-                <input
-                  type="checkbox"
+                <div className="border-t border-line/70" />
+                <Toggle
                   checked={form.mask_secrets_by_default}
-                  onChange={(e) =>
-                    setForm({ ...form, mask_secrets_by_default: e.target.checked })
-                  }
+                  onChange={(next) => setForm({ ...form, mask_secrets_by_default: next })}
+                  label="默认打码"
                 />
-                默认打码
-              </label>
+              </div>
             </div>
-          </div>
-        </section>
+          </Card>
 
-        <section className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-          <h2 className="text-sm font-semibold text-slate-100">后台运行</h2>
-          <p className="mt-1 text-xs text-slate-500">
-            关闭窗口后仅隐藏到系统托盘，剪贴板监听继续运行；点击托盘图标或按 Ctrl+Shift+V 唤出面板。
-          </p>
-          <div className="mt-4 space-y-3">
-            <label className="flex items-center gap-3 text-xs text-slate-300">
-              <input
-                type="checkbox"
-                checked={form.hide_on_close}
-                onChange={(e) => setForm({ ...form, hide_on_close: e.target.checked })}
-              />
-              关闭窗口时隐藏到托盘（点「保存设置」生效）
-            </label>
-            <label className="flex items-center gap-3 text-xs text-slate-300">
-              <input
-                type="checkbox"
-                checked={autostart}
-                onChange={(e) => void toggleAutostart(e.target.checked)}
-              />
-              开机自动启动
-            </label>
-          </div>
-        </section>
-
-
-        {isAndroid && (
-          <section className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-            <h2 className="text-sm font-semibold text-slate-100">后台剪贴板监听（Android）</h2>
-            <p className="mt-1 text-xs text-slate-500">
-              Android 10+ 禁止后台应用读取剪贴板。开启无障碍服务后，应用才能在后台继续嗅探；不开启时仅在应用内手动使用。
-            </p>
-            <p className="mt-2 text-xs">
-              授权状态：
-              <span className={backgroundPermission ? "text-emerald-400" : "text-amber-400"}>
-                {backgroundPermission ? " 已允许" : " 未允许"}
-              </span>
-            </p>
-            <div className="mt-3 flex gap-2">
-              <button
-                onClick={() => void openAccessibilitySettings()}
-                className="rounded-lg bg-sky-600 px-3 py-2 text-xs font-medium text-white hover:bg-sky-500"
-              >
-                打开系统无障碍设置
-              </button>
-              <button
-                onClick={() => void refreshBackgroundPermission()}
-                className="rounded-lg border border-slate-700 px-3 py-2 text-xs text-slate-300"
-              >
-                刷新状态
-              </button>
+          <Card>
+            <CardTitle icon="terminal" title="后台运行" hint="系统托盘" />
+            <div className="p-4">
+              <p className="mb-1 text-[12px] leading-relaxed text-muted">
+                关闭窗口后仅隐藏到系统托盘，剪贴板监听继续运行；点击托盘图标或按 Ctrl+Shift+V 唤出面板。
+              </p>
+              <div className="divide-y divide-line/70">
+                <Toggle
+                  checked={form.hide_on_close}
+                  onChange={(next) => setForm({ ...form, hide_on_close: next })}
+                  label="关闭窗口时隐藏到托盘"
+                  description="点击「保存设置」后生效"
+                />
+                <Toggle
+                  checked={autostart}
+                  onChange={(next) => void toggleAutostart(next)}
+                  label="开机自动启动"
+                  description="登录系统时自动在后台运行"
+                />
+              </div>
             </div>
-          </section>
-        )}
-        <section className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-          <h2 className="text-sm font-semibold text-slate-100">本地数据</h2>
-          <p className="mt-1 break-all font-mono text-[11px] text-slate-500">
-            {dataDir || "读取中…"}
-          </p>
-          <p className="mt-2 text-xs text-slate-500">
-            剪贴板内容只存本地 SQLite，应用不联网、不上传任何内容。
-          </p>
-          <div className="mt-4 flex gap-2">
-            <button
-              onClick={save}
-              className="rounded-lg bg-sky-600 px-4 py-2 text-xs font-medium text-white hover:bg-sky-500"
-            >
-              保存设置
-            </button>
-            <button
-              onClick={reloadRules}
-              className="rounded-lg border border-slate-700 px-4 py-2 text-xs text-slate-300 hover:border-slate-500"
-            >
-              重载诊断规则
-            </button>
-          </div>
-        </section>
+          </Card>
+
+          {isAndroid && (
+            <Card>
+              <CardTitle
+                icon="shield"
+                title="后台剪贴板监听（Android）"
+                action={
+                  <Badge tone={backgroundPermission ? "accent" : "warning"}>
+                    {backgroundPermission ? "已允许" : "未允许"}
+                  </Badge>
+                }
+              />
+              <div className="p-4">
+                <p className="text-[12px] leading-relaxed text-muted">
+                  Android 10+ 禁止后台应用读取剪贴板。开启无障碍服务后，应用才能在后台继续嗅探；不开启时仅在应用内手动使用。
+                </p>
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    size="sm"
+                    icon="external"
+                    onClick={() => void openAccessibilitySettings()}
+                  >
+                    打开系统无障碍设置
+                  </Button>
+                  <Button size="sm" icon="refresh" onClick={() => void refreshBackgroundPermission()}>
+                    刷新状态
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          <Card>
+            <CardTitle icon="database" title="本地数据" hint="不联网 · 不上传" />
+            <div className="p-4">
+              <div className="flex items-center gap-2 rounded-[10px] border border-line bg-base/50 px-3 py-2">
+                <Icon name="database" size={13} className="shrink-0 text-dim" />
+                <code className="break-all font-mono text-[11px] text-muted">
+                  {dataDir || "读取中…"}
+                </code>
+              </div>
+              <p className="mt-2 text-[11px] text-dim">
+                剪贴板内容只存本地 SQLite，应用不联网、不上传任何内容。
+              </p>
+              <Button size="sm" icon="refresh" onClick={() => void reloadRules()} className="mt-3">
+                重载诊断规则
+              </Button>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
-  );
-}
-
-const inputClass =
-  "w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-200 focus:border-slate-500";
-
-function Field({
-  label,
-  children,
-  span,
-}: {
-  label: string;
-  children: React.ReactNode;
-  span?: boolean;
-}) {
-  return (
-    <label className={`block ${span ? "col-span-2" : ""}`}>
-      <span className="mb-1 block text-[11px] text-slate-500">{label}</span>
-      {children}
-    </label>
   );
 }
