@@ -1,6 +1,6 @@
 [package]
 name = "fde-clip"
-version = "0.1.0"
+version = "0.1.1"
 description = "Smart clipboard workbench"
 authors = ["fde-clip contributors"]
 edition = "2021"

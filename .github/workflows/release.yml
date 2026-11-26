@@ -94,7 +94,7 @@ jobs:
         run: |
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           [ -x "$SDKMANAGER" ] || SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -1)
-          yes | "$SDKMANAGER" --install "ndk;28.2.13676358" "platforms;android-35"
+          test -x "$SDKMANAGER" || { echo "sdkmanager not found"; exit 1; }
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -106,8 +106,11 @@ jobs:
 
       - name: Build Android APK and AAB
         run: |
-          export NDK_HOME="$ANDROID_HOME/ndk/28.2.13676358"
+          export NDK_HOME=$(ls -d "$ANDROID_HOME"/ndk/* 2>/dev/null | sort -V | tail -1)
           export ANDROID_NDK_HOME="$NDK_HOME"
+          export ANDROID_NDK_ROOT="$NDK_HOME"
+          echo "NDK_HOME=$NDK_HOME"
+          test -x "$NDK_HOME/ndk-build" || { echo "NDK not found"; exit 1; }
           pnpm install
           chmod +x src-tauri/gen/android/gradlew
           pnpm tauri android build --ci --apk --aab -t aarch64
