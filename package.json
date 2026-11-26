@@ -2,6 +2,7 @@
   "name": "fde-clip",
   "private": true,
   "version": "0.1.1",
+  "license": "MIT",
   "type": "module",
   "description": "Lightweight cross-platform smart clipboard workbench",
   "scripts": {
